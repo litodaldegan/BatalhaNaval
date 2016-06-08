@@ -1,0 +1,61 @@
+Programação Funcional (Haskell)
+
+Jogo: Batalha Naval (Battleship)
+
+Descrição:
+O jogo tem como objetivo destruir todos os navios presentes
+no tabuleiro do adversário antes que o mesmo destrua os seus.
+Basicamente o jogo começa com os jogadores distribuindo os 
+seus 7 navios dentro de um tabuleiro (normalmente de tamanho
+10x10). Em seguida, sem saber a distribuição dos navios do
+adversário, cada jogador tem que ir atirando nos pontos (x,y)
+ do tabuleiro afim de afundar os navios do adversário. Para
+afunda um navio, é necessário acertar tiros em todos os pontos
+em que ele está presente (os navios têm tamanho variados).
+O jogo funciona em rodadas alternadas, ou seja, cada hora um
+jogador efetua um tiro. Aquele que destruir os navios do
+adversário primeiro vence o jogo.
+
+Os navios presentes no jogo:
+     Nome       Tamanho  Quantidade
+ -Battleship       5         1
+ -Cruiser          4         2
+ -Frigate          3         3
+ -Minesweeper      2         4
+
+Proposta:
+Recriar o jogo Batalha Naval em Haskell para o modo de
+jogo com um único usuário, onde o mesmo vai competir contra
+o computador. É objetivo do trabalho desenvolver estratégias
+competitivas a serem usadas pelo computador a fim de vencer o
+usuário.
+
+Visão do usuário do seu tabuleiro:
+    1 2 3 4 5 6 7 8 9 10
+  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|
+1 | ¤ ¤ <=> ¤ ¤ ¤ <===> |
+2 | ¤ ¤ ¤ ¤ ¤ ¤ ¤ <=> ¤ |
+3 | ٨ ¤ ٨ ¤ ¤ ¤ ¤ ¤ ٨ ¤ |
+4 | ‖ ¤ v ¤ ¤ ٨ ¤ ¤ ‖ ¤ |
+5 | ‖ ¤ ¤ ¤ ¤ ‖ ¤ ¤ ‖ ¤ |
+6 | ‖ ¤ ¤ ¤ ¤ v ¤ ¤ v ¤ |
+7 | v <===> ¤ ¤ ¤ ¤ ¤ ¤ |
+8 | ¤ ¤ ¤ ¤ ¤ ¤ ¤ ¤ ¤ ¤ |
+9 | ¤ <=====> ¤ ¤ ¤ ¤ ¤ |
+10| ¤ ¤ ¤ ¤ ¤ ¤ ¤ <=> ¤ |
+  |_____________________|
+
+Visão do usuário do tabuleiro do adversário:
+    1 2 3 4 5 6 7 8 9 10
+  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|
+1 | ¤   ¤               |
+2 |     ¤   ¤     ¤   ¤ |
+3 | ¤ X ¤ ¤     ¤       |
+4 | ¤       ¤   X X X ¤ |
+5 | ¤     ¤             |
+6 |   ¤         ¤ ¤ ¤ ¤ |
+7 | ¤                   |
+8 | X    ¤      ¤ ¤ ¤ ¤ |
+9 | X                   |
+10| ¤ ¤ ¤             ¤ |
+  |_____________________|
