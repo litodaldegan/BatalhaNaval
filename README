@@ -2,6 +2,27 @@ Programação Funcional (Haskell)
 
 Jogo: Batalha Naval (Battleship)
 
+                   a,    8a
+                   `8,   `8)
+                    8)    ]8
+                   ,8'   ,8'
+                  ,8'   ,8'
+                  8)    8)
+                  8,    8,
+                  `8,   `8,
+                   `8,   `"
+                ___| |___| |___
+           ____["""""""""""""""]____
+           \ " '''''''''''''''''''' |
+    ~~~~~~^~^~^^~^~^~^~^~^~^~^~~^~^~^^~~^~^
+  _~~~~~~~~~  _   _   _ ~~~~~~~~  _  ~~~_ ~~~~
+ | |         | | | | | |         | |   (_)
+ | |__   __ _| |_| |_| | ___  ___| |__  _ _ __
+ | '_ \ / _` | __| __| |/ _ \/ __| '_ \| | '_ \
+ | |_) | (_| | |_| |_| |  __/\__ \ | | | | |_) |
+ |_.__/ \__,_|\__|\__|_|\___||___/_| |_|_| .__/
+                                         |_|
+
 Descrição:
 O jogo tem como objetivo destruir todos os navios presentes
 no tabuleiro do adversário antes que o mesmo destrua os seus.
@@ -10,7 +31,7 @@ seus 7 navios dentro de um tabuleiro (normalmente de tamanho
 10x10). Em seguida, sem saber a distribuição dos navios do
 adversário, cada jogador tem que ir atirando nos pontos (x,y)
  do tabuleiro afim de afundar os navios do adversário. Para
-afunda um navio, é necessário acertar tiros em todos os pontos
+afundar um navio, é necessário acertar tiros em todos os pontos
 em que ele está presente (os navios têm tamanho variados).
 O jogo funciona em rodadas alternadas, ou seja, cada hora um
 jogador efetua um tiro. Aquele que destruir os navios do
@@ -32,30 +53,30 @@ usuário.
 
 Visão do usuário do seu tabuleiro:
     0 1 2 3 4 5 6 7 8 9 
-  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|
-0 |     <=>       <===> |
-1 |               <=>   |
-2 | ٨   ٨           ٨   |
-3 | ‖   v     ٨     ‖   |
-4 | ‖         ‖     ‖   |
-5 | ‖         v     v   |
-6 | v <===>             |
-7 |                     |
-8 |   <=====>           |
-9 |               <=>   |
+  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|   Legenda:
+0 | ~ ~ ⊡ ⊡ ~ ~ ~ ⊡ ⊡ ⊡ |   〜 - Água
+1 | ~ ~ ~ ~ ~ ~ ~ ⊡ ⊡ ~ |   ⊡  - Partes do seu navio
+2 | ⊡ ~ ⊡ ~ ~ ~ ~ ~ ⊡ ~ |
+3 | ⊡ ~ ⊡ ~ ~ ⊡ ~ ~ ⊡ ~ |
+4 | ⊡ ~ ~ ~ ~ ⊡ ~ ~ ⊡ ~ |
+5 | ⊡ ~ ~ ~ ~ ⊡ ~ ~ ⊡ ~ |
+6 | ⊡ ⊡ ⊡ ⊡ ~ ~ ~ ~ ~ ~ |
+7 | ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ |
+8 | ~ ⊡ ⊡ ⊡ ⊡ ~ ~ ~ ~ ~ |
+9 | ~ ~ ~ ~ ~ ~ ~ ⊡ ⊡ ~ |
   |_____________________|
 
 Visão do usuário do tabuleiro do adversário:
     0 1 2 3 4 5 6 7 8 9 
-  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|
-0 |     ¤               |
-1 |     ¤   ¤     ¤   ¤ |
-2 | ¤ X ¤ ¤     ¤       |
-3 | ¤       ¤   X X X ¤ |
-4 | ¤     ¤             |
-5 |   ¤         ¤ ¤ ¤ ¤ |
-6 | ¤                   |
-7 | X    ¤      ¤ ¤ ¤ ¤ |
-8 | X                   |
-9 | ¤ ¤ ¤             ¤ |
+  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|   Legenda:
+0 |     ⊚               |   ☠  - Tiro em navio
+1 |     ⊚   ⊚     ⊚   ⊚ |   ⊚  - Tiro ao mar
+2 | ⊚ ☠ ⊚ ⊚     ⊚       |
+3 | ⊚       ⊚   ☠ ☠ ☠ ⊚ |
+4 | ⊚     ⊚             |
+5 |   ⊚         ⊚ ⊚ ⊚   |
+6 | ⊚                   |
+7 | ☠    ⊚      ⊚   ⊚ ⊚ |
+8 | ☠                   |
+9 | ⊚ ⊚ ⊚             ⊚ |
   |_____________________|
