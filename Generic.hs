@@ -24,17 +24,20 @@ wShot = '⊚'
 sShot :: Char
 sShot = '☠'
 
+{-Nomes dos navios-}
 shipName :: Int -> String
-shipName 0 = "Battleship (tamanho: 5)."
-shipName 1 = "Cruiser (tamanho: 4)."
-shipName 2 = "Frigate (tamanho: 3)."
-shipName 3 = "Minesweeper (tamanho: 2)."
+shipName 0 = "Minesweeper (tamanho: 2)."
+shipName 1 = "Frigate (tamanho: 3)."
+shipName 2 = "Cruiser (tamanho: 4)."
+shipName 3 = "Battleship (tamanho: 5)."
 
+{-Tamanho do navio, em relação ao id do shipName-}
 shipSize :: Int -> Int
-shipSize 0 = 5
-shipSize 1 = 4
-shipSize 2 = 3
-shipSize 3 = 2
+shipSize = (+2)
+
+{-Orientação do navio no tabuleiro-}
+vertical :: Char
+vertical = 'v'
 
 {- --------------------------------------------
    Funções genéricas de manipulação
@@ -71,6 +74,9 @@ printBoth s1 s2 n =
 {-Gera um número aleatório até 10-}
 myRandom :: IO Int
 myRandom = randomRIO (fromInteger(1),fromInteger(10))
+
+myRandom' :: Int -> IO Int
+myRandom' max = randomRIO (fromInteger(0),max)
 
 {-Gera um número aleatório par até 10-}
 evenRandom :: IO Int

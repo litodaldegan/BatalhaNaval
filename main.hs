@@ -17,25 +17,23 @@ import Interaction
 {-Representação do jogo. Dois tabuleiros e uma lista de tiros.-}
 data BattleShip = 
 	BattleShip
-	(UBoard (Int,Int) Char)
-	(PBoard (Int,Int) Char)
+	(UBoard)
+	(PBoard)
 	PcShots
 	deriving (Show)
 
 {-Tabuleiro dos navios do usuário-}
-type UBoard  = Map
+type UBoard  = Map (Int,Int) Char
 {-Tabuleiro do pc e tiros do usuário-}
-type PBoard  = Map
+type PBoard  = Map (Int,Int) Char
 {-Lista de tuplas, para o pc salvar os tiros
   e utilizar de estratégias-}
 type PcShots = [(Int,Int)] 
-
 
 {-Pega as linhas correpondentes nos dados de
   configuração e separa em palavras para a leitura-}
 readS :: String -> Int -> Map (Int,Int) Char
 readS s n = readBoard (words ((lines s) !! n))
-
 
 {- --------------------------------------------
    Funções de estratégia de tiro do jogo
@@ -83,7 +81,6 @@ parityShotH = do
 		then return (i,j1)
 		else return (i,j2)
 
-
 {- --------------------------------------------
    Função de controle do jogo
    ---------------------------------------------}
@@ -98,10 +95,17 @@ newBoard :: IO BattleShip
 newBoard = return (BattleShip Map.empty Map.empty [])
 
 {-Inicializa os tabuleiros de jogo-}
-initBoard :: IO BattleShip
-initBoard = do
+initBoard :: Bool -> IO BattleShip
+initBoard rand = do
 	cont <- readFile "conf"
-	return (BattleShip (readS cont 0) (readS cont 1) [])
+	pb <- myRandom' (length (lines cont)-1)  
+	ub <- myRandom' (length (lines cont)-1)  
+	
+	putStrLn ((show pb) ++ " " ++ (show ub))
+
+	if (rand)
+		then return (BattleShip (readS cont ub) (readS cont pb) [])
+	 	else return (BattleShip (readS cont (length (lines cont)-1)) (readS cont pb) [])
 
 {-Retorna o tabuleiro de navios do usuário-}
 userBoard :: BattleShip -> Map (Int,Int) Char
@@ -201,24 +205,42 @@ playBS bs@(BattleShip u p s) = do
 checkPosition :: Map (Int,Int) Char -> (Int,Int) -> Int -> Char -> Bool
 checkPosition _ _ 0 _ = True
 checkPosition m t@(i,j) n o = do
-	if (i < 1 || i > 10 || j < 1 || j > 10)
-		then False
-		else if (Map.notMember t m)
-			then if (o == 'v')
+	if (checkCoord t n o)
+		then if (Map.notMember t m)
+			then if (o == vertical)
 				then True && checkPosition m (i+1,j) (n-1) o
 			 	else True && checkPosition m (i,j+1) (n-1) o
 			else False
+		else False
+
+checkCoord :: (Int,Int) -> Int -> Char -> Bool
+checkCoord (i,j) size o = do
+	if (o == vertical)
+		then if ((size + i) > 10)
+			then False
+			else True
+		else if ((size + j) > 10)
+			then False
+			else True
+
+coorde :: Char -> Char -> IO ((Int,Int))
+coorde x y = return ((digitToInt x)+1, (digitToInt y)+1)
+
+insertShip :: (Int,Int) -> Int -> Char -> UBoard
+insertShip t@(x,y)   0  o = Map.empty
+insertShip t@(x,y) size o = 
+	if (o == vertical)
+		then Map.insert (x,y) ship (insertShip (x+1,y) (size-1) o) 
+		else Map.insert (x,y) ship (insertShip (x,y+1) (size-1) o)
 
 {-Função interativa para possicionar os navio no início do jogo-}
-positionShips :: Int -> IO ()
-positionShips n = do
-	bs <- newBoard
-	cleanScreen
-	putStrLn "Posicione os seus navios no tabueiro de forma"
-	putStrLn "que o inimigo não seja capaz de acertá-los."
-	showBoard bs
+positionShips :: UBoard -> Int -> IO (UBoard)
+positionShips ub n = do
+	putStrLn "    0 1 2 3 4 5 6 7 8 9\n  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|"
+	putStr (showB ub (1,0))
+	putStrLn "  |______________________|\n"
 	putStrLn $ "Possicionar " ++ (shipName n)
-	putStrLn "Colocar o návio na (v)ertical ou (h)orizontal"
+	putStrLn "Colocar o návio na (v)ertical ou (h)orizontal?"
 	putStr "Orientação:"
 	o <- getOpt "vh"
 	putStrLn "Seleciona as coordenadas para o navio:"
@@ -226,18 +248,63 @@ positionShips n = do
 	x <- getOpt "1 2 3 4 5 6 7 8 9 0"
 	putStr "(Início) Eixo y:"
 	y <- getOpt "1 2 3 4 5 6 7 8 9 0"
+	cord <- coorde x y
 
-	if (checkPosition (userBoard bs) (digitToInt x,digitToInt y) (shipSize n) o)
-		then putStrLn "Navio adicionado com sucesso."
-		else putStrLn "Erro"
+	if (checkPosition ub cord (shipSize n) o)
+		then return (Map.union ub (insertShip cord (shipSize n) o))
+		else do
+			cleanScreen
+			putStrLn "Posição inválida. Favor selecionar novamente."
+			positionShips ub n
+
+giveKeys :: [(Int,Int)] -> String
+giveKeys [] = []
+giveKeys t  = (show (head t)) ++  " " ++ giveKeys (tail t)
+
+position :: IO()
+position = do
+	cleanScreen
+	putStrLn "Posicione os seus navios no tabueiro de forma"
+	putStrLn "que o inimigo não seja capaz de acertá-los."
+
+	{-Posicionando os Minesweeper-}
+	b1 <- positionShips (Map.empty) 0
+	b2 <- positionShips b1 0
+	b3 <- positionShips b2 0
+	b4 <- positionShips b3 0
+	--{-Posicionando os Frigate-}
+	b5 <- positionShips b4 1
+	b6 <- positionShips b5 1
+	b7 <- positionShips b6 1
+	--{-Posicionando os Cruiser-}
+	b8 <- positionShips b7 2
+	b9 <- positionShips b8 2
+	--{-Posicionando os Frigate-}
+	b10 <- positionShips b9 3
+	
+	putStrLn ""
+	appendFile "conf" (giveKeys (Map.keys b10))
+	appendFile "conf" "\n" 
 
 main :: IO()
 main = do
 	showEnterDialog
 	getChar
 
-	bs <- initBoard
-	playBS bs
+	cleanScreen
+	putStr "Deseja posicionar os seus navios?"
+	putStr " (s - sim / n - não)\nEm caso negativo"
+	putStr " eles serão alocados aleatoriamente.\nOpção:" 
+	optP <- getOpt "sn"
+
+	if (optP == 's')
+		then do
+			position
+			bs1 <- (initBoard False)
+			playBS bs1
+		else do
+			bs1 <- (initBoard True)
+			playBS bs1
 
 	putStrLn "Deseja jogar novamente? (s - sim / n - não)"
 	putStr "Opção: "
