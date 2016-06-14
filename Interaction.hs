@@ -84,7 +84,7 @@ showB m t@(i,j)
 						(show2Dig (i-1)) ++ "| " ++ (showB m (i,j+1))
 						else
 							""
-	{-Imprimindo as bodas direitas-}
+	{-Imprimindo as bordas direitas-}
 	| j == 11   = if (i > 10)
 					then " |\n"
 					else (" |\n" ++ showB m (i+1,0))

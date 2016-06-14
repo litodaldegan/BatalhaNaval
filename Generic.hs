@@ -3,6 +3,7 @@ module Generic where
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
 import System.Random
+import Data.Char
 
 {- --------------------------------------------
    Definições para o jogo
@@ -39,6 +40,10 @@ shipSize = (+2)
 vertical :: Char
 vertical = 'v'
 
+{-ship-}
+shipAllocationFile :: String
+shipAllocationFile = ".conf"
+
 {- --------------------------------------------
    Funções genéricas de manipulação
    ---------------------------------------------}
@@ -66,6 +71,16 @@ printBoth [] [] n = []
 printBoth s1 s2 n =
 	((lines s1) !! n) ++ ((lines s2) !! n) ++ "\n"
 		++ printBoth s1 s2 (n+1)
+
+{-Função que transforma uma lista de tuplas em uma 
+  string contendo as tuplas-}
+giveKeys :: [(Int,Int)] -> String
+giveKeys [] = []
+giveKeys t  = (show (head t)) ++  " " ++ giveKeys (tail t)
+
+{- Transforma dois caracteres em uma tupla-}
+coordinate :: Char -> Char -> IO ((Int,Int))
+coordinate x y = return ((digitToInt x)+1, (digitToInt y)+1)
 
 {- --------------------------------------------
    Funções de número aleatório

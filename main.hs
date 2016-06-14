@@ -1,13 +1,7 @@
 module Main where
 
-{-Control import-}
-import Control.Monad
-{-System import-}
-import System.IO
-import System.Random
 {-Data import-}
 import Data.Char
-import Data.List
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
 {-This project imports-}
@@ -29,11 +23,6 @@ type PBoard  = Map (Int,Int) Char
 {-Lista de tuplas, para o pc salvar os tiros
   e utilizar de estratégias-}
 type PcShots = [(Int,Int)] 
-
-{-Pega as linhas correpondentes nos dados de
-  configuração e separa em palavras para a leitura-}
-readS :: String -> Int -> Map (Int,Int) Char
-readS s n = readBoard (words ((lines s) !! n))
 
 {- --------------------------------------------
    Funções de estratégia de tiro do jogo
@@ -71,19 +60,26 @@ targetStrategy bs@(BattleShip u p s)
 	| null s    = parityShotH
 	| otherwise = targetShot bs (head s)
 
-{-Estratégia que não atira em blocos vizinhos na horizontal-}
+{-Estratégia que não atira em blocos vizinhos na horizontal
+  e nem na vertical. Variando o bloco atirado para cada linha-}
 parityShotH :: IO (Int, Int)
 parityShotH = do
 	i <- myRandom
 	j1 <- evenRandom
 	j2 <- oddRandom
+
 	if (odd i)
 		then return (i,j1)
 		else return (i,j2)
 
 {- --------------------------------------------
-   Função de controle do jogo
+   Funções de controle do jogo
    ---------------------------------------------}
+
+{-Pega as linhas correpondentes nos dados de
+  configuração e separa em palavras para a leitura-}
+readS :: String -> Int -> Map (Int,Int) Char
+readS s n = readBoard (words ((lines s) !! n))
 
 {-Insere todas as posições lidas na Board-}
 readBoard :: [String] -> Map (Int,Int) Char
@@ -97,14 +93,15 @@ newBoard = return (BattleShip Map.empty Map.empty [])
 {-Inicializa os tabuleiros de jogo-}
 initBoard :: Bool -> IO BattleShip
 initBoard rand = do
-	cont <- readFile "conf"
+	cont <- readFile shipAllocationFile
 	pb <- myRandom' (length (lines cont)-1)  
 	ub <- myRandom' (length (lines cont)-1)  
 	
-	putStrLn ((show pb) ++ " " ++ (show ub))
-
+	{-Se o usuário escolheu usar uma distribuição de navios aleatórias-}
 	if (rand)
+		{-Escolhe do arquivo de configurações uma distribuição-}
 		then return (BattleShip (readS cont ub) (readS cont pb) [])
+		{-Pega a distribuição que o usuário acabou de fazer (última entrada)-}
 	 	else return (BattleShip (readS cont (length (lines cont)-1)) (readS cont pb) [])
 
 {-Retorna o tabuleiro de navios do usuário-}
@@ -127,11 +124,16 @@ pcShot :: BattleShip -> IO BattleShip
 pcShot bs@(BattleShip u p s) = do
 	shot <- targetStrategy  bs
 
-	{-Verificando se o tiro é inválido-}
+	{-Verificando se o tiro é válido-}
 	if (not $ checkShot u shot)
+		{-Tenta um novo tiro com o penúltimo tiro certo,
+		  o último é descartado-}
 		then pcShot (BattleShip u p (myTail s))
+		{-Verifica se acertou um navio-}
 		else if (Map.notMember shot u)
+		{-Se não acertou, só marca o tiro no tabuleiro-}
 		then return (BattleShip (Map.insert shot wShot u) p s)
+		{-Se acertou, salva o tiro-}
 		else return (BattleShip (Map.insert shot sShot u) p (shot:s))
 
 {-Exibe os tabuleiros do usuário e do computador,
@@ -148,6 +150,7 @@ showBoard (BattleShip u p s) = do
 {-Verifica se o tabuleiro está com todos navios afundados-}
 checkEnd :: Map (Int,Int) Char -> (Int,Int) -> Bool -> Bool
 checkEnd m t@(i,j) end
+	{-Fim da linha-}
 	| j == 11   = if (i > 10)
 					then end
 					else (end && (checkEnd m (i+1,0) True))
@@ -170,6 +173,7 @@ getShot bs@(BattleShip u p s) = do
 	putStr "Eixo y:"
 	y <- getOpt "1 2 3 4 5 6 7 8 9 0"
 
+	{-Verifica se o tiro é válido-}
 	if (checkShot p (getShotOpt x y))
 		then (userShot bs (getShotOpt x y))
 		else do
@@ -179,12 +183,14 @@ getShot bs@(BattleShip u p s) = do
 {-Parte interativa que realiza as rodadas do jogo-}
 playBS :: BattleShip -> IO()
 playBS bs@(BattleShip u p s) = do
+	{-Verifica se o usuário venceu o jogo-}
 	if (checkEnd p (0,0) True)
 		then do
 			cleanScreen
 			showBoard bs
 			showVictory
 			return ()
+		{-Verifica se o computador venceu o jogo-}
 		else if (checkEnd u (0,0) True)
 			then do
 				cleanScreen
@@ -202,38 +208,49 @@ playBS bs@(BattleShip u p s) = do
 			bs3 <- pcShot bs2
 			playBS bs3
 
+
+{- --------------------------------------------
+   Funções para possicionar os navios no início
+   ---------------------------------------------}
+
+{-Verifica se não há navios nas posições para inserir um novo navio-}
 checkPosition :: Map (Int,Int) Char -> (Int,Int) -> Int -> Char -> Bool
 checkPosition _ _ 0 _ = True
 checkPosition m t@(i,j) n o = do
+	{-Verifica se as coordenadas são válidas-}
 	if (checkCoord t n o)
 		then if (Map.notMember t m)
+			{-Se a orientação do navio for vertical-}
 			then if (o == vertical)
+				{-Verifica as posições abaixo da inicial-}
 				then True && checkPosition m (i+1,j) (n-1) o
+				{-Verifica as posições a lado da inicial-}
 			 	else True && checkPosition m (i,j+1) (n-1) o
 			else False
 		else False
 
+{-Verifica se o navio não vai sair do tabuleiro-}
 checkCoord :: (Int,Int) -> Int -> Char -> Bool
 checkCoord (i,j) size o = do
+	{-Se a orientação do navio for vertical-}
 	if (o == vertical)
-		then if ((size + i) > 10)
+		then if ((size + i) > 11)
 			then False
 			else True
-		else if ((size + j) > 10)
+		else if ((size + j) > 11)
 			then False
 			else True
 
-coorde :: Char -> Char -> IO ((Int,Int))
-coorde x y = return ((digitToInt x)+1, (digitToInt y)+1)
-
+{-Insere o navio no tabuleiro-}
 insertShip :: (Int,Int) -> Int -> Char -> UBoard
 insertShip t@(x,y)   0  o = Map.empty
 insertShip t@(x,y) size o = 
+	{-Se a orientação do navio for vertical-}
 	if (o == vertical)
 		then Map.insert (x,y) ship (insertShip (x+1,y) (size-1) o) 
 		else Map.insert (x,y) ship (insertShip (x,y+1) (size-1) o)
 
-{-Função interativa para possicionar os navio no início do jogo-}
+{-Função interativa para possicionar navio no tabuleiro-}
 positionShips :: UBoard -> Int -> IO (UBoard)
 positionShips ub n = do
 	putStrLn "    0 1 2 3 4 5 6 7 8 9\n  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|"
@@ -248,61 +265,67 @@ positionShips ub n = do
 	x <- getOpt "1 2 3 4 5 6 7 8 9 0"
 	putStr "(Início) Eixo y:"
 	y <- getOpt "1 2 3 4 5 6 7 8 9 0"
-	cord <- coorde x y
+	cord <- coordinate x y
 
+	cleanScreen
+
+	{-Verifica se a posição do navio e válida-}
 	if (checkPosition ub cord (shipSize n) o)
 		then return (Map.union ub (insertShip cord (shipSize n) o))
 		else do
-			cleanScreen
 			putStrLn "Posição inválida. Favor selecionar novamente."
 			positionShips ub n
 
-giveKeys :: [(Int,Int)] -> String
-giveKeys [] = []
-giveKeys t  = (show (head t)) ++  " " ++ giveKeys (tail t)
-
+{-Função que faz a inserção de todos os navios no tabuleiro-}
 position :: IO()
 position = do
 	cleanScreen
 	putStrLn "Posicione os seus navios no tabueiro de forma"
 	putStrLn "que o inimigo não seja capaz de acertá-los."
 
-	{-Posicionando os Minesweeper-}
+	{-Posicionando os navios Minesweeper-}
 	b1 <- positionShips (Map.empty) 0
 	b2 <- positionShips b1 0
 	b3 <- positionShips b2 0
 	b4 <- positionShips b3 0
-	--{-Posicionando os Frigate-}
+	--{-Posicionando os navios Frigate-}
 	b5 <- positionShips b4 1
 	b6 <- positionShips b5 1
 	b7 <- positionShips b6 1
-	--{-Posicionando os Cruiser-}
+	--{-Posicionando os navios Cruiser-}
 	b8 <- positionShips b7 2
 	b9 <- positionShips b8 2
-	--{-Posicionando os Frigate-}
+	--{-Posicionando o BattleShip-}
 	b10 <- positionShips b9 3
 	
 	putStrLn ""
-	appendFile "conf" (giveKeys (Map.keys b10))
-	appendFile "conf" "\n" 
+
+	{-Salvando essa configuração para ser utilizada em
+	  outras partias-}
+	appendFile shipAllocationFile (giveKeys (Map.keys b10))
+	appendFile shipAllocationFile "\n" 
 
 main :: IO()
 main = do
+	{-Exibe mensagem de início-}
 	showEnterDialog
 	getChar
 
+	{-Verificando se o jogador quer posicionar os navios-}
 	cleanScreen
 	putStr "Deseja posicionar os seus navios?"
 	putStr " (s - sim / n - não)\nEm caso negativo"
-	putStr " eles serão alocados aleatoriamente.\nOpção:" 
+	putStr " será utilizado uma distribuição armazenada.\nOpção:" 
 	optP <- getOpt "sn"
 
 	if (optP == 's')
 		then do
+			{-Posiciona os navios e inicia jogo-}
 			position
 			bs1 <- (initBoard False)
 			playBS bs1
 		else do
+			{-Inicia com distribuição salva-}
 			bs1 <- (initBoard True)
 			playBS bs1
 
