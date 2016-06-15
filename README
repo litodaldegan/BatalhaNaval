@@ -1,6 +1,10 @@
-Programação Funcional (Haskell)
-
-Jogo: Batalha Naval (Battleship)
+        Programação Funcional (Haskell)
+       
+       Autor: Ítalo Daldegan de Oliveira
+            italodaldegan@hotmail.com
+    https://github.com/litodaldegan/BatalhaNaval
+    
+        Jogo: Batalha Naval (Battleship)
 
                    a,    8a
                    `8,   `8)
@@ -29,10 +33,13 @@ no tabuleiro do adversário antes que o mesmo destrua os seus.
 Basicamente o jogo começa com os jogadores distribuindo os 
 seus 7 navios dentro de um tabuleiro (normalmente de tamanho
 10x10). Em seguida, sem saber a distribuição dos navios do
-adversário, cada jogador tem que ir atirando nos pontos (x,y)
- do tabuleiro afim de afundar os navios do adversário. Para
+adversário, cada jogador tem que realizar tiros nos pontos (x,y)
+do tabuleiro afim de afundar os navios do adversário. Para
 afundar um navio, é necessário acertar tiros em todos os pontos
 em que ele está presente (os navios têm tamanho variados).
+Porém, não é informado para o usuário quando um navio foi total-
+mente destruído, cabe ao mesmo verificar isso realizando tiros nos
+extremos de onde ele acreditar estar posicionado o navio.
 O jogo funciona em rodadas alternadas, ou seja, cada hora um
 jogador efetua um tiro. Aquele que destruir os navios do
 adversário primeiro vence o jogo.
@@ -45,38 +52,103 @@ Os navios presentes no jogo:
  -Minesweeper      2         4
 
 Proposta:
-Recriar o jogo Batalha Naval em Haskell para o modo de
-jogo com um único usuário, onde o mesmo vai competir contra
-o computador. É objetivo do trabalho desenvolver estratégias
-competitivas a serem usadas pelo computador a fim de vencer o
-usuário.
+Recriação do jogo Batalha Naval em Haskell para o modo de
+jogo com um único usuário, onde o mesmo compete contra
+o computador. O jogo permite que o usuário insira as
+configurações de navios ou que use uma configuração pronta.
+O computador usa da estratégia de jogo Target-Hunt¹ para tentar vencer do usuário. O jogo é feito totalmente via
+terminal sem uso de uma biblioteca gráfica, ficando
+totalmente limitado à utilização de caracteres unicode
+para a exibição em tela.
 
-Visão do usuário do seu tabuleiro:
-    0 1 2 3 4 5 6 7 8 9 
-  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|   Legenda:
-0 | ~ ~ ⊡ ⊡ ~ ~ ~ ⊡ ⊡ ⊡ |   〜 - Água
-1 | ~ ~ ~ ~ ~ ~ ~ ⊡ ⊡ ~ |   ⊡  - Partes do seu navio
-2 | ⊡ ~ ⊡ ~ ~ ~ ~ ~ ⊡ ~ |
-3 | ⊡ ~ ⊡ ~ ~ ⊡ ~ ~ ⊡ ~ |
-4 | ⊡ ~ ~ ~ ~ ⊡ ~ ~ ⊡ ~ |
-5 | ⊡ ~ ~ ~ ~ ⊡ ~ ~ ⊡ ~ |
-6 | ⊡ ⊡ ⊡ ⊡ ~ ~ ~ ~ ~ ~ |
-7 | ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ |
-8 | ~ ⊡ ⊡ ⊡ ⊡ ~ ~ ~ ~ ~ |
-9 | ~ ~ ~ ~ ~ ~ ~ ⊡ ⊡ ~ |
-  |_____________________|
+Requisitos:
+- GHCi instalado (http://www.haskell.org/ghc/)
+- Cabal instalado (https://www.haskell.org/cabal/)
+- Biblioteca random do cabal (https://hackage.haskell.org/package/random)
 
-Visão do usuário do tabuleiro do adversário:
-    0 1 2 3 4 5 6 7 8 9 
-  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|   Legenda:
-0 |     ⊚               |   ☠  - Tiro em navio
-1 |     ⊚   ⊚     ⊚   ⊚ |   ⊚  - Tiro ao mar
-2 | ⊚ ☠ ⊚ ⊚     ⊚       |
-3 | ⊚       ⊚   ☠ ☠ ☠ ⊚ |
-4 | ⊚     ⊚             |
-5 |   ⊚         ⊚ ⊚ ⊚   |
-6 | ⊚                   |
-7 | ☠    ⊚      ⊚   ⊚ ⊚ |
-8 | ☠                   |
-9 | ⊚ ⊚ ⊚             ⊚ |
-  |_____________________|
+Recomendado:
+- Sistema linux para garantir fidelidade dos caracteres
+  unicodes utilizados. Todo o algoritmo foi feito no 
+  Ubuntu 14.04 LTS 64-bit.
+
+Implementação:
+O jogo foi implementado na linguagem Haskell e está divido
+em três arquivos fonte:
+	-main.hs: contém as funções diretamente ligadas ao
+	funcionamento do jogo. Contém as função que realizam
+	a interação com o usuário e com o ambiente para poder
+	rodar o jogo. Também contém as funções de estratégia
+	do computador e as funções que interagem com os dados
+	para poder ir marcando as jogadas feitas.
+	-Interaction.hs: contém as funções de impressões 
+	em tela, como mensagem de início, vitória, derrota...
+	-Generic.hs: contém as abstrações utilizadas para
+	caracteres e funções genéricas do jogo.
+
+Arquivos ocultos:
+	-.entermsg: arquivo com a mensagem de início do jogo.
+	Se encontra dentro da pasta do jogo.
+	-.conf: arquivo usado como configurações de navio para
+	serem utilizados pelo computador. Nele também é salvo
+	as distribuições de navios feitas pelo usuário para mais
+	tarde serem utilizadas pelo computador.
+
+Visão do usuário dentro do jogo:
+  Tabuleiro de posicionamento: a ser usado pelo usuário,
+  caso o mesmo deseje posicionar os navios no início do jogo.
+  Vai demonstrando os navios a medida que são alocados.
+  ┌─ Posicionando os navios ─┐
+  │     ０１２３ ４５６７ ８９  │
+  ├───┬──────────────────────┤
+  │ 0 │ ⊡ ~ ~ ~ ~ ~ ⊡ ⊡ ~ ~  │
+  │ 1 │ ⊡ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 2 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 3 │ ~ ~ ~ ~ ⊡ ⊡ ~ ~ ~ ~  │
+  │ 4 │ ~ ~ ~ ~ ⊡ ⊡ ~ ~ ⊡ ⊡  │
+  │ 5 │ ~ ~ ~ ~ ~ ⊡ ~ ~ ~ ~  │
+  │ 6 │ ⊡ ⊡ ⊡ ⊡ ~ ~ ~ ~ ~ ~  │
+  │ 7 │ ~ ~ ~ ~ ⊡ ⊡ ⊡ ~ ~ ~  │
+  │ 8 │ ~ ~ ~ ~ ⊡ ⊡ ⊡ ~ ~ ~  │
+  │ 9 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  └───┴──────────────────────┘
+
+  Tabuleiro do usuário: destinado a demonstrar para o
+  jogador como seus navios estão posicionados e os tiros
+  realizados pelo computador. Um exemplo de visão abaixo:
+  ┌────── Seu Tabuleiro ─────┐ 
+  │     ０１２３ ４５６７ ８９  │     Legenda:
+  ├───┬──────────────────────┤      ~  - Água
+  │ 0 │ ~ ~ ~ ⊡ ~ ⊚ ~ ⊡ ~ ⊡  │      ⊡  - Partes do seu navio
+  │ 1 │ ~ ⊡ ~ ⊡ ~ ⊡ ~ ⊡ ~ ⊡  │
+  │ 2 │ ~ ☠ ⊚ ~ ~ ⊡ ~ ⊡ ~ ⊡  │
+  │ 3 │ ~ ~ ~ ⊡ ~ ⊡ ~ ⊡ ~ ⊡  │
+  │ 4 │ ⊡ ~ ~ ⊡ ~ ⊚ ⊡ ~ ⊡ ~  │
+  │ 5 │ ⊡ ~ ~ ⊡ ~ ~ ⊡ ~ ⊡ ~  │
+  │ 6 │ ~ ~ ~ ~ ~ ~ ⊡ ~ ⊡ ~  │
+  │ 7 │ ⊡ ~ ~ ~ ~ ~ ~ ~ ⊡ ~  │
+  │ 8 │ ⊡ ~ ~ ~ ~ ~ ~ ~ ⊡ ~  │
+  │ 9 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  └───┴──────────────────────┘
+  
+  Tabuleiro do adversário: destinado a demonstrar para o
+  jogador o tabuleiro do computador (adversário), onde
+  serão marcados o tiros certos (em navio) e os tiros
+  errados (ao mar). Um exemplo de visão abaixo:
+  ┌── Tabuleiro do Inimigo ──┐
+  │    ０１ ２３４ ５６７８９   │   Legenda:
+  ├───┬──────────────────────┤    ☠  - Tiro em navio
+  │ 0 │ ~ ~ ~ ☠ ☠ ☠ ⊚ ~ ~ ~  │    ⊚  - Tiro ao mar
+  │ 1 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 2 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 3 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 4 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 5 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 6 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 7 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 8 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  │ 9 │ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~  │
+  └───┴──────────────────────┘
+
+Referência:
+-[1] Target-Hunt:
+	 http://www.datagenetics.com/blog/december32011/index.html

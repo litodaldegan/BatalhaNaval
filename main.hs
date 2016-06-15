@@ -253,14 +253,15 @@ insertShip t@(x,y) size o =
 {-Função interativa para possicionar navio no tabuleiro-}
 positionShips :: UBoard -> Int -> IO (UBoard)
 positionShips ub n = do
-	putStrLn "    0 1 2 3 4 5 6 7 8 9\n  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|"
+	putStr "\n ┌─ Posicionando os navios ─┐\n │     ０１２"
+	putStrLn "３４５６７８９ │\n ├───┬──────────────────────┤"
 	putStr (showB ub (1,0))
-	putStrLn "  |______________________|\n"
+	putStrLn " └───┴──────────────────────┘\n"
 	putStrLn $ "Possicionar " ++ (shipName n)
 	putStrLn "Colocar o návio na (v)ertical ou (h)orizontal?"
 	putStr "Orientação:"
 	o <- getOpt "vh"
-	putStrLn "Seleciona as coordenadas para o navio:"
+	putStrLn "Seleciona as coordenadas para o início do navio:"
 	putStr "(Início) Eixo x:"
 	x <- getOpt "1 2 3 4 5 6 7 8 9 0"
 	putStr "(Início) Eixo y:"
