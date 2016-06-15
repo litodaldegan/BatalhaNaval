@@ -140,11 +140,11 @@ pcShot bs@(BattleShip u p s) = do
   ambos na visão do usuário-}
 showBoard :: BattleShip -> IO()
 showBoard (BattleShip u p s) = do
-	putStrLn "\n       Seu Tabuleiro          Tabuleiro do Inimigo"
-	putStrLn "    0 1 2 3 4 5 6 7 8 9       0 1 2 3 4 5 6 7 8 9"
-	putStrLn "  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|  |¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯|"
+	putStrLn "\n ┌────── Seu Tabuleiro ─────┐ ┌── Tabuleiro do Inimigo ──┐"
+	putStrLn " │     ０１２３４５６７８９ │ │     ０１２３４５６７８９ │"
+	putStrLn " ├───┬──────────────────────┤ ├───┬──────────────────────┤"
 	putStr (printBoth (showB u (1,0)) (showBP p (1,0)) 0)
-	putStrLn "  |______________________|  |______________________|"
+	putStrLn " └───┴──────────────────────┘ └───┴──────────────────────┘"
 	putStrLn "\n"
 
 {-Verifica se o tabuleiro está com todos navios afundados-}
@@ -329,8 +329,7 @@ main = do
 			bs1 <- (initBoard True)
 			playBS bs1
 
-	putStrLn "Deseja jogar novamente? (s - sim / n - não)"
-	putStr "Opção: "
+	putStr "Deseja jogar novamente? (s - sim / n - não)\nOpção: "
 	opt <- (getOpt "sn")
 	if (opt == 's')
 		then main 

@@ -61,7 +61,7 @@ myTail s
 {-String de número em 2 caracteres-}
 show2Dig :: Int -> String
 show2Dig n
-	| n < 10    = " " ++ (show n)
+	| n < 10    = "│ " ++ (show n)
 	| otherwise = show n
 
 {-Imprime as linhas de duas strings simultaneamente-}
@@ -69,7 +69,7 @@ printBoth :: String -> String -> Int -> String
 printBoth _  _ 10 = [] 
 printBoth [] [] n = []
 printBoth s1 s2 n =
-	((lines s1) !! n) ++ ((lines s2) !! n) ++ "\n"
+	((lines s1) !! n) ++ " " ++ ((lines s2) !! n) ++ "\n"
 		++ printBoth s1 s2 (n+1)
 
 {-Função que transforma uma lista de tuplas em uma 

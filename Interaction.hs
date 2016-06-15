@@ -81,13 +81,13 @@ showB m t@(i,j)
 	{-Imprimindo as bordas esquerdas-}
 	| j == 0    = if (i < 11)
 					then 
-						(show2Dig (i-1)) ++ "| " ++ (showB m (i,j+1))
+						(" " ++ show2Dig (i-1)) ++ " │ " ++ (showB m (i,j+1))
 						else
 							""
 	{-Imprimindo as bordas direitas-}
 	| j == 11   = if (i > 10)
-					then " |\n"
-					else (" |\n" ++ showB m (i+1,0))
+					then " │\n"
+					else (" │\n" ++ showB m (i+1,0))
 	| otherwise = if (Map.notMember t m)
 					{-Imprimindo água-}
 					then (water : showB m (i,j+1))
@@ -101,13 +101,13 @@ showBP m t@(i,j)
 	{-Imprimindo as bordas esquerdas-}
 	| j == 0    = if (i < 11)
 					then 
-						(show2Dig (i-1)) ++ "| " ++ (showBP m (i,j+1))
+						(show2Dig (i-1)) ++ " │ " ++ (showBP m (i,j+1))
 						else
 							""
 	{-Imprimindo as bodas direitas-}
 	| j == 11   = if (i > 10)
-					then " |\n"
-					else (" |\n" ++ showBP m (i+1,0))
+					then " │\n"
+					else (" │\n" ++ showBP m (i+1,0))
 	{-Imprimindo os tiros-}
 	| otherwise = if (Map.notMember t m)
 					{-Imprimindo água-}
