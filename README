@@ -16,8 +16,8 @@
                   `8,   `8,
                    `8,   `"
                 ___| |___| |___
-           ____["""""""""""""""]____
-           \ " '''''''''''''''''''' |
+           ____/"""""""""""""""\____
+           \ " ''''''''''''''''''''/
     ~~~~~~^~^~^^~^~^~^~^~^~^~^~~^~^~^^~~^~^
   _~~~~~~~~~  _   _   _ ~~~~~~~~  _  ~~~_ ~~~~
  | |         | | | | | |         | |   (_)
@@ -56,7 +56,8 @@ Recriação do jogo Batalha Naval em Haskell para o modo de
 jogo com um único usuário, onde o mesmo compete contra
 o computador. O jogo permite que o usuário insira as
 configurações de navios ou que use uma configuração pronta.
-O computador usa da estratégia de jogo Target-Hunt¹ para tentar vencer do usuário. O jogo é feito totalmente via
+O computador usa da estratégia de jogo Target-Hunt¹ para
+tentar vencer do usuário. O jogo é feito totalmente via
 terminal sem uso de uma biblioteca gráfica, ficando
 totalmente limitado à utilização de caracteres unicode
 para a exibição em tela.
@@ -87,7 +88,6 @@ em três arquivos fonte:
 
 Arquivos ocultos:
 	-.entermsg: arquivo com a mensagem de início do jogo.
-	Se encontra dentro da pasta do jogo.
 	-.conf: arquivo usado como configurações de navio para
 	serem utilizados pelo computador. Nele também é salvo
 	as distribuições de navios feitas pelo usuário para mais
